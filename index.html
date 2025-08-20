@@ -1,0 +1,2337 @@
+
+
+
+<!-- Creador: Cristhian Aguilar
+     Departamento de IT 
+  -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Costo por Cliente </title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .nav-tabs {
+            background: #f8f9fa;
+            padding: 20px;
+            margin: 0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            background: white;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .nav-tab:hover {
+            background: #ff6b35;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,53,0.3);
+        }
+
+        .nav-tab.active {
+            background: #ff6b35;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,107,53,0.4);
+            transform: translateY(-1px);
+        }
+
+        .nav-tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .nav-tab:hover::before {
+            left: 100%;
+        }
+
+        .tab-content {
+            padding: 30px;
+            min-height: 800px;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255,107,53,0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(255,107,53,0.4);
+        }
+
+        .metric-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .metric-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .metrics-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .metrics-btn {
+            background: white;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+            padding: 12px 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            min-width: 180px;
+            text-align: center;
+        }
+
+        .metrics-btn:hover {
+            background: #ff6b35;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,53,0.3);
+        }
+
+        .metrics-btn.active {
+            background: #ff6b35;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,107,53,0.4);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .chart-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            border: 2px solid #f0f0f0;
+            transition: all 0.3s ease;
+        }
+
+        .chart-panel:hover {
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .chart-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .chart-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            background: #f8f9fa;
+            border: 2px solid #ff6b35;
+            color: #ff6b35;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-btn.active {
+            background: #ff6b35;
+            color: white;
+            box-shadow: 0 5px 15px rgba(255,107,53,0.3);
+        }
+
+       .chart-canvas {
+    position: relative;
+    height: 500px; /* Aumentar altura para la leyenda */
+    margin-top: 20px;
+}
+
+        /* Desglose expandible */
+        .expenses-breakdown {
+            margin-top: 30px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #ff6b35;
+            overflow: hidden;
+        }
+
+        .breakdown-header {
+            padding: 25px;
+            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .breakdown-header:hover {
+            background: linear-gradient(135deg, #e55a2b 0%, #e0851a 100%);
+        }
+
+        .breakdown-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .breakdown-arrow {
+            font-size: 1.2em;
+            transition: transform 0.3s ease;
+        }
+
+        .breakdown-arrow.expanded {
+            transform: rotate(180deg);
+        }
+
+        .breakdown-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            background: white;
+        }
+
+        .breakdown-content.expanded {
+            max-height: 500px;
+        }
+
+        .breakdown-list {
+            padding: 25px;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+
+        .breakdown-item:hover {
+            background: rgba(255,107,53,0.1);
+            padding-left: 10px;
+            border-radius: 8px;
+        }
+
+        .breakdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .breakdown-category {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .breakdown-amount {
+            font-weight: 700;
+            color: #ff6b35;
+            font-size: 1.1em;
+        }
+
+        .full-width-chart {
+            grid-column: 1 / -1;
+        }
+
+        .trend-chart {
+            height: 300px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .nav-tab {
+                flex: 1;
+                min-width: 120px;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .metric-value {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="header">
+            <h1>📊 Dashboard </h1>
+            <p>Análisis de Gastos y Rendimiento Comercial</p>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('general', this)">Vista General</button>
+            <button class="nav-tab" onclick="showTab('enero', this)">Enero</button>
+            <button class="nav-tab" onclick="showTab('febrero', this)">Febrero</button>
+            <button class="nav-tab" onclick="showTab('marzo', this)">Marzo</button>
+            <button class="nav-tab" onclick="showTab('abril', this)">Abril</button>
+            <button class="nav-tab" onclick="showTab('mayo', this)">Mayo</button>
+            <button class="nav-tab" onclick="showTab('junio', this)">Junio</button>
+            <button class="nav-tab" onclick="showTab('julio', this)">Julio</button>
+
+        </div>
+
+        <div class="tab-content">
+            <!-- Vista General -->
+          <div id="general" class="tab-panel">
+    <div class="metrics-toggle">
+        <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+        <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+    </div>
+<div class="metrics-container">
+        <!-- Métricas Generales -->
+        <div class="metrics-grid general-metrics active">
+            <div class="metric-card">
+                <div class="metric-icon">💰</div>
+                <div class="metric-value">Q 3,572,268</div>
+                <div class="metric-label">Gastos Totales</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">📊</div>
+                <div class="metric-value">175</div>
+                <div class="metric-label">Total Casos</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">🎯</div>
+                <div class="metric-value">Q 29,417,000</div>
+                <div class="metric-label">Colocaciones</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon">👥</div>
+                <div class="metric-value">Q 19,847</div>
+                <div class="metric-label">Costo por Cliente</div>
+            </div>
+        </div>
+        
+        <!-- Métricas de Marketing -->
+        <div class="metrics-grid marketing-metrics" style="display: none;">
+            <div class="metric-card">
+<div class="metric-icon">💰</div>
+                <div class="metric-value" id="general-ratio">Q 0</div>
+                <div class="metric-label">Gastos Totales</div>
+            </div>
+            <div class="metric-card">
+<div class="metric-icon">📊</div>
+                <div class="metric-value" id="general-publicidad">Q 0</div>
+                <div class="metric-label">Total Casos</div>
+            </div>
+            <div class="metric-card">
+<div class="metric-icon">🎯</div>
+                <div class="metric-value" id="general-plataformas">Q 0</div>
+<div class="metric-label">Colocaciones</div>
+            </div>
+            <div class="metric-card">
+<div class="metric-icon">💥</div>
+                <div class="metric-value" id="general-contenido">Q 0</div>
+                <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+</div>
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Gastos por Categoría</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('general-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('general-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="generalLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Tendencias Mensuales</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('general-right', 'line', this)">📈 Líneas</button>
+                                <button class="toggle-btn" onclick="toggleChart('general-right', 'area', this)">📊 Área</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="generalRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-panel full-width-chart">
+                    <div class="chart-header">
+                        <h3 class="chart-title">Análisis Comparativo Mensual</h3>
+                    </div>
+                    <div class="chart-canvas trend-chart">
+                        <canvas id="generalTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enero -->
+          <div id="enero" class="tab-panel">
+    <div class="metrics-toggle">
+        <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+        <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+    </div>
+    <div class="metrics-container">
+    <!-- Métricas Generales -->
+    <div class="metrics-grid general-metrics active">
+        <div class="metric-card">
+            <div class="metric-icon">💰</div>
+            <div class="metric-value">Q 586,043</div>
+            <div class="metric-label">Gastos Totales</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-value">29</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-value">Q 4,190,333</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div class="metric-value">Q 20,208</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+    
+    <!-- Métricas de Marketing -->
+    <div class="metrics-grid marketing-metrics" style="display: none;">
+        <div class="metric-card">
+<div class="metric-icon">💰</div>
+            <div class="metric-value" id="enero-ratio">Q 0</div>
+<div class="metric-label">Total Gastos Marketing</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">📊</div>
+            <div class="metric-value" id="enero-publicidad">Q 0</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">🎯</div>
+            <div class="metric-value" id="enero-plataformas">Q 0</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">💥</div>
+            <div class="metric-value" id="enero-contenido">Q 0</div>
+<div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+</div>
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Distribución de Gastos</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('enero-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('enero-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="eneroLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                           <h3 class="chart-title">Tendencias de Rendimiento</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="eneroRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="breakdown-header" onclick="toggleBreakdown('enero-breakdown')">
+                        <h3 class="breakdown-title">💼 Desglose de Gastos - Enero</h3>
+                        <span class="breakdown-arrow">⬇️</span>
+                    </div>
+                    <div id="enero-breakdown" class="breakdown-content">
+                        <div class="breakdown-list">
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Publicidad (Facebook Ads, Google Ads, etc.)</span>
+                                <span class="breakdown-amount">Q 237,951</span>
+                            </div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Sueldos</span>
+    <span class="breakdown-amount">Q 164,792</span>
+</div>
+<div class="breakdown-item">
+    <span class="breakdown-category">Comisiones</span>
+    <span class="breakdown-amount">Q 116,266</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Creación de contenido</span>
+                                <span class="breakdown-amount">Q 32,797</span>
+                            </div>
+                           <div class="breakdown-item">
+    <span class="breakdown-category">Honorarios</span>
+    <span class="breakdown-amount">Q 28,780</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Otros costos de marketing</span>
+                                <span class="breakdown-amount">Q 2,983</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Plataformas y herramientas de marketing</span>
+                                <span class="breakdown-amount">Q 2,474</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Febrero -->
+            <div id="febrero" class="tab-panel">
+    <div class="metrics-toggle">
+        <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+        <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+    </div>
+   <div class="metrics-container">
+    <!-- Métricas Generales -->
+    <div class="metrics-grid general-metrics active">
+        <div class="metric-card">
+            <div class="metric-icon">💰</div>
+            <div class="metric-value">Q 699,936</div>
+            <div class="metric-label">Gastos Totales</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-value">22</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-value">Q 1,895,333</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div class="metric-value">Q 31,815</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+    
+    <!-- Métricas de Marketing -->
+    <div class="metrics-grid marketing-metrics" style="display: none;">
+        <div class="metric-card">
+<div class="metric-icon">💰</div>
+            <div class="metric-value" id="febrero-ratio">Q 0</div>
+<div class="metric-label">Total Gastos Marketing</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">📊</div>
+            <div class="metric-value" id="febrero-publicidad">Q 0</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">🎯</div>
+            <div class="metric-value" id="febrero-plataformas">Q 0</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">💥</div>
+            <div class="metric-value" id="febrero-contenido">Q 0</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+</div>
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Distribución de Gastos</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('febrero-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('febrero-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="febreroLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Métricas de Rendimiento</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="febreroRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="breakdown-header" onclick="toggleBreakdown('febrero-breakdown')">
+                        <h3 class="breakdown-title">💼 Desglose de Gastos - Febrero</h3>
+                        <span class="breakdown-arrow">⬇️</span>
+                    </div>
+                    <div id="febrero-breakdown" class="breakdown-content">
+                        <div class="breakdown-list">
+                           <div class="breakdown-item">
+    <span class="breakdown-category">Comisiones</span>
+    <span class="breakdown-amount">Q 273,040</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Publicidad (Facebook Ads, Google Ads, etc.)</span>
+                                <span class="breakdown-amount">Q 181,835</span>
+                            </div>
+                           <div class="breakdown-item">
+    <span class="breakdown-category">Sueldos</span>
+    <span class="breakdown-amount">Q 150,329</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Creación de contenido</span>
+                                <span class="breakdown-amount">Q 40,861</span>
+                            </div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Honorarios</span>
+    <span class="breakdown-amount">Q 28,780</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Otros costos de marketing</span>
+                                <span class="breakdown-amount">Q 22,917</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Plataformas y herramientas de marketing</span>
+                                <span class="breakdown-amount">Q 2,174</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marzo -->
+            <div id="marzo" class="tab-panel">
+    <div class="metrics-toggle">
+        <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+        <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+    </div>
+    <div class="metrics-container">
+    <!-- Métricas Generales -->
+    <div class="metrics-grid general-metrics active">
+        <div class="metric-card">
+            <div class="metric-icon">💰</div>
+            <div class="metric-value">Q 593,918</div>
+            <div class="metric-label">Gastos Totales</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-value">33</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-value">Q 6,758,333</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div class="metric-value">Q 17,998</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+    
+    <!-- Métricas de Marketing -->
+    <div class="metrics-grid marketing-metrics" style="display: none;">
+        <div class="metric-card">
+<div class="metric-icon">💰</div>
+            <div class="metric-value" id="marzo-ratio">Q 0</div>
+<div class="metric-label">Total Gastos Marketing</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">📊</div>
+            <div class="metric-value" id="marzo-publicidad">Q 0</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">🎯</div>
+            <div class="metric-value" id="marzo-plataformas">Q 0</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">💥</div>
+            <div class="metric-value" id="marzo-contenido">Q 0</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+</div>
+
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Distribución de Gastos</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('marzo-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('marzo-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="marzoLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Métricas de Rendimiento</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="marzoRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="breakdown-header" onclick="toggleBreakdown('marzo-breakdown')">
+                        <h3 class="breakdown-title">💼 Desglose de Gastos - Marzo</h3>
+                        <span class="breakdown-arrow">⬇️</span>
+                    </div>
+                    <div id="marzo-breakdown" class="breakdown-content">
+                        <div class="breakdown-list">
+                           <div class="breakdown-item">
+    <span class="breakdown-category">Comisiones</span>
+    <span class="breakdown-amount">Q 232,739</span>
+</div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Sueldos</span>
+    <span class="breakdown-amount">Q 155,455</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Publicidad (Facebook Ads, Google Ads, etc.)</span>
+                                <span class="breakdown-amount">Q 123,978</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Creación de contenido</span>
+                                <span class="breakdown-amount">Q 32,796</span>
+                            </div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Honorarios</span>
+    <span class="breakdown-amount">Q 28,780</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Otros costos de marketing</span>
+                                <span class="breakdown-amount">Q 16,867</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Plataformas y herramientas de marketing</span>
+<span class="breakdown-amount">Q 3,303</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+</div>
+
+            <!-- Abril -->
+           <div id="abril" class="tab-panel">
+    <div class="metrics-toggle">
+        <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+        <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+    </div>
+ <div class="metrics-container">
+    <!-- Métricas Generales -->
+    <div class="metrics-grid general-metrics active">
+        <div class="metric-card">
+            <div class="metric-icon">💰</div>
+            <div class="metric-value">Q 531,989</div>
+            <div class="metric-label">Gastos Totales</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-value">29</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-value">Q 4,300,000</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div class="metric-value">Q 18,344</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+    
+    <!-- Métricas de Marketing -->
+    <div class="metrics-grid marketing-metrics" style="display: none;">
+        <div class="metric-card">
+<div class="metric-icon">💰</div>
+            <div class="metric-value" id="abril-ratio">Q 0</div>
+<div class="metric-label">Total Gastos Marketing</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">📊</div>
+            <div class="metric-value" id="abril-publicidad">Q 0</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">🎯</div>
+            <div class="metric-value" id="abril-plataformas">Q 0</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">💥</div>
+<div class="metric-value" id="abril-contenido">Q 0</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+</div>
+
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Distribución de Gastos</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('abril-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('abril-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="abrilLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Métricas de Rendimiento</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="abrilRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="breakdown-header" onclick="toggleBreakdown('abril-breakdown')">
+                        <h3 class="breakdown-title">💼 Desglose de Gastos - Abril</h3>
+                        <span class="breakdown-arrow">⬇️</span>
+                    </div>
+                    <div id="abril-breakdown" class="breakdown-content">
+                        <div class="breakdown-list">
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Publicidad (Facebook Ads, Google Ads, etc.)</span>
+                                <span class="breakdown-amount">Q 124,644</span>
+                            </div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Sueldos</span>
+    <span class="breakdown-amount">Q 132,873</span>
+</div>
+                           <div class="breakdown-item">
+    <span class="breakdown-category">Comisiones</span>
+    <span class="breakdown-amount">Q 177,355</span>
+</div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Honorarios</span>
+    <span class="breakdown-amount">Q 40,299</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Creación de contenido</span>
+                                <span class="breakdown-amount">Q 32,796</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Otros costos de marketing</span>
+                                <span class="breakdown-amount">Q 21,226</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Plataformas y herramientas de marketing</span>
+                                <span class="breakdown-amount">Q 2,796</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mayo -->
+            <div id="mayo" class="tab-panel">
+    <div class="metrics-toggle">
+        <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+        <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+    </div>
+    <div class="metrics-container">
+    <!-- Métricas Generales -->
+    <div class="metrics-grid general-metrics active">
+        <div class="metric-card">
+            <div class="metric-icon">💰</div>
+            <div class="metric-value">Q 571,733</div>
+            <div class="metric-label">Gastos Totales</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-value">37</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-value">Q 5,343,000</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div class="metric-value">Q 15,452</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+    
+    <!-- Métricas de Marketing -->
+    <div class="metrics-grid marketing-metrics" style="display: none;">
+        <div class="metric-card">
+<div class="metric-icon">💰</div>
+            <div class="metric-value" id="mayo-ratio">Q 0</div>
+<div class="metric-label">Total Gastos Marketing</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">📊</div>
+            <div class="metric-value" id="mayo-publicidad">Q 0</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">🎯</div>
+            <div class="metric-value" id="mayo-plataformas">Q 0</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">💥</div>
+            <div class="metric-value" id="mayo-contenido">Q 0</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+</div>
+
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Distribución de Gastos</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('mayo-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('mayo-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="mayoLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Métricas de Rendimiento</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="mayoRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="breakdown-header" onclick="toggleBreakdown('mayo-breakdown')">
+                        <h3 class="breakdown-title">💼 Desglose de Gastos - Mayo</h3>
+                        <span class="breakdown-arrow">⬇️</span>
+                    </div>
+                    <div id="mayo-breakdown" class="breakdown-content">
+                        <div class="breakdown-list">
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Publicidad (Facebook Ads, Google Ads, etc.)</span>
+                                <span class="breakdown-amount">Q 133,552</span>
+                            </div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Sueldos</span>
+    <span class="breakdown-amount">Q 120,048</span>
+</div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Comisiones</span>
+    <span class="breakdown-amount">Q 130,591</span>
+</div>
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Honorarios</span>
+    <span class="breakdown-amount">Q 37,635</span>
+</div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Creación de contenido</span>
+                                <span class="breakdown-amount">Q 39,792</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Otros costos de marketing</span>
+                                <span class="breakdown-amount">Q 18,509</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Plataformas y herramientas de marketing</span>
+                                <span class="breakdown-amount">Q 1,788</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Junio -->
+         <div id="junio" class="tab-panel">
+    <div class="metrics-toggle">
+        <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+        <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+    </div>
+<div class="metrics-container">
+    <!-- Métricas Generales -->
+    <div class="metrics-grid general-metrics active">
+        <div class="metric-card">
+            <div class="metric-icon">💰</div>
+            <div class="metric-value">Q 588,649</div>
+            <div class="metric-label">Gastos Totales</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">📊</div>
+            <div class="metric-value">25</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">🎯</div>
+            <div class="metric-value">Q 6,930,000</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-icon">👥</div>
+            <div class="metric-value">Q 23,546</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+    
+    <!-- Métricas de Marketing -->
+    <div class="metrics-grid marketing-metrics" style="display: none;">
+        <div class="metric-card">
+<div class="metric-icon">💰</div>
+            <div class="metric-value" id="junio-ratio">Q 0</div>
+<div class="metric-label">Total Gastos Marketing</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">📊</div>
+            <div class="metric-value" id="junio-publicidad">Q 0</div>
+            <div class="metric-label">Casos</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">🎯</div>
+            <div class="metric-value" id="junio-plataformas">Q 0</div>
+            <div class="metric-label">Colocaciones</div>
+        </div>
+        <div class="metric-card">
+<div class="metric-icon">💥</div>
+            <div class="metric-value" id="junio-contenido">Q 0</div>
+            <div class="metric-label">Costo por Cliente</div>
+        </div>
+    </div>
+</div>
+
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Distribución de Gastos</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('junio-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('junio-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="junioLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Métricas de Rendimiento</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="junioRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="breakdown-header" onclick="toggleBreakdown('junio-breakdown')">
+                        <h3 class="breakdown-title">💼 Desglose de Gastos - Junio</h3>
+                        <span class="breakdown-arrow">⬇️</span>
+                    </div>
+                    <div id="junio-breakdown" class="breakdown-content">
+                        <div class="breakdown-list">
+                            <div class="breakdown-item">
+    <span class="breakdown-category">Comisiones</span>
+    <span class="breakdown-amount">Q 220,409</span>
+</div>
+<div class="breakdown-item">
+    <span class="breakdown-category">Publicidad (Facebook)</span>
+    <span class="breakdown-amount">Q 167,450</span>
+</div>
+<div class="breakdown-item">
+    <span class="breakdown-category">Sueldos</span>
+    <span class="breakdown-amount">Q 120,048</span>
+</div>
+<div class="breakdown-item">
+    <span class="breakdown-category">Honorarios</span>
+    <span class="breakdown-amount">Q 37,635</span>
+</div>
+<div class="breakdown-item">
+    <span class="breakdown-category">Plataformas y herramientas de marketing</span>
+    <span class="breakdown-amount">Q 19,356</span>
+</div>
+<div class="breakdown-item">
+    <span class="breakdown-category">Creación de contenido</span>
+    <span class="breakdown-amount">Q 16,746</span>
+</div>
+<div class="breakdown-item">
+    <span class="breakdown-category">Otros costos de marketing</span>
+    <span class="breakdown-amount">Q 7,004</span>
+</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Julio -->
+            <div id="julio" class="tab-panel">
+                <div class="metrics-toggle">
+                    <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+                    <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+                </div>
+                
+                <div class="metrics-container">
+                    <!-- Métricas Generales -->
+                    <div class="metrics-grid general-metrics active">
+                        <div class="metric-card">
+                            <div class="metric-icon">💰</div>
+                            <div class="metric-value">Q 0</div>
+                            <div class="metric-label">Gastos Totales</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📊</div>
+                            <div class="metric-value">0</div>
+                            <div class="metric-label">Casos</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🎯</div>
+                            <div class="metric-value">Q 0</div>
+                            <div class="metric-label">Colocaciones</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">👥</div>
+                            <div class="metric-value">Q 0</div>
+                            <div class="metric-label">Costo por Cliente</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Métricas de Marketing -->
+                    <div class="metrics-grid marketing-metrics" style="display: none;">
+                        <div class="metric-card">
+                            <div class="metric-icon">💰</div>
+                            <div class="metric-value" id="julio-ratio">Q 0</div>
+                            <div class="metric-label">Total Gastos Marketing</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📊</div>
+                            <div class="metric-value" id="julio-publicidad">Q 0</div>
+                            <div class="metric-label">Casos</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🎯</div>
+                            <div class="metric-value" id="julio-plataformas">Q 0</div>
+                            <div class="metric-label">Colocaciones</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">💥</div>
+                            <div class="metric-value" id="julio-contenido">Q 0</div>
+                            <div class="metric-label">Costo por Cliente</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Distribución de Gastos</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('julio-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('julio-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="julioLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Métricas de Rendimiento</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="julioRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="breakdown-header" onclick="toggleBreakdown('julio-breakdown')">
+                        <h3 class="breakdown-title">💼 Desglose de Gastos - Julio</h3>
+                        <span class="breakdown-arrow">⬇️</span>
+                    </div>
+                    <div id="julio-breakdown" class="breakdown-content">
+                        <div class="breakdown-list">
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Publicidad (Facebook Ads, Google Ads, etc.)</span>
+                                <span class="breakdown-amount">Q 0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Sueldos</span>
+                                <span class="breakdown-amount">Q 0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Comisiones</span>
+                                <span class="breakdown-amount">Q 0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Honorarios</span>
+                                <span class="breakdown-amount">Q 0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Creación de contenido</span>
+                                <span class="breakdown-amount">Q 0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Plataformas y herramientas de marketing</span>
+                                <span class="breakdown-amount">Q 0</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Otros costos de marketing</span>
+                                <span class="breakdown-amount">Q 0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos globales
+const monthlyData = {
+    enero: {
+    gastos: [237951.04, 32796.73, 2474.17, 2983.00, 164791.80, 28780.00, 116266.21],
+    labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
+    casos: 29,
+    colocaciones: 4190333,
+    costoCliente: 20208.38
+},
+febrero: {
+    gastos: [181835.00, 40860.73, 2174.08, 22917.00, 150329.04, 28780.00, 273040.00],
+    labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
+    casos: 22,
+    colocaciones: 1895333,
+    costoCliente: 31815.27
+},
+marzo: {
+    gastos: [123978.00, 32796.00, 3303.00, 16867.00, 155454.56, 28780.00, 232739.24],
+    labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
+    casos: 33,
+    colocaciones: 6758333,
+    costoCliente: 17997.52
+},
+    abril: {
+        gastos: [124644.00, 32796.00, 2796.00, 21226.00, 132873.22, 40298.74, 177355.49],
+        labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
+        casos: 29,
+        colocaciones: 4300000,
+        costoCliente: 18344.46
+    },
+    mayo: {
+        gastos: [133552.00, 39792.00, 1788.00, 18509.00, 120047.77, 37634.59, 220409.48],
+        labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
+        casos: 37,
+        colocaciones: 5343000,
+        costoCliente: 15452.24
+    },
+    junio: {
+        gastos: [167450.06, 16746.00, 19356.45, 7004.47, 120047.77, 37634.59, 220409.48],
+        labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
+        casos: 25,
+        colocaciones: 6930000,
+        costoCliente: 23545.95
+    },
+    julio: {
+        gastos: [0, 0, 0, 0, 0, 0, 0],
+        labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
+        casos: 0,
+        colocaciones: 0,
+        costoCliente: 0
+    }
+};
+
+        // Colores profesionales
+        const colors = [
+            '#FF6B35', '#F7931E', '#FFB347', '#FF8C42', '#FF7F50', 
+            '#FFA500', '#FF9500', '#FF6347', '#FF4500', '#FF8C00'
+        ];
+
+        const chartInstances = {};
+
+        // Configuración base para gráficas 3D
+        const chart3DConfig = {
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        font: {
+                            size: 12,
+                            weight: 'bold'
+                        }
+                    }
+                },
+              
+tooltip: {
+    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+    titleColor: '#fff',
+    bodyColor: '#fff',
+    borderColor: '#FF6B35',
+    borderWidth: 2,
+    cornerRadius: 10,
+    displayColors: true,
+    callbacks: {
+        label: function(context) {
+            // Para gráficas de barras
+            if (context.parsed.y !== undefined) {
+                return context.dataset.label + ': Q ' + context.parsed.y.toLocaleString();
+            }
+            // Para gráficas circulares
+            if (context.parsed !== undefined) {
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                return context.label + ': Q ' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+            }
+            return context.label + ': Q ' + context.raw.toLocaleString();
+        }
+    }
+}
+
+
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            layout: {
+    padding: {
+        top: 20,
+        bottom: 120 // Espacio para la leyenda
+    }
+},
+            animation: {
+    duration: 1500,
+    easing: 'easeInOutQuart'
+},
+elements: {
+    arc: {
+        borderWidth: 3
+    }
+},
+radius: '75%', // Hacer el círculo más pequeño
+        };
+
+function showTab(tabName, element) {
+    // Ocultar todas las pestañas
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+    
+    // Remover clase active de todos los botones
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Mostrar la pestaña seleccionada
+    const targetPanel = document.getElementById(tabName);
+    if (targetPanel) {
+        targetPanel.classList.add('active');
+    }
+    
+    // Activar el botón correspondiente
+    if (element) {
+        element.classList.add('active');
+    }
+    
+    // Resetear botones de métricas a "Gastos General"
+    const metricsToggle = document.querySelector(`#${tabName} .metrics-toggle`);
+    if (metricsToggle) {
+        const generalBtn = metricsToggle.querySelector('.metrics-btn:first-child');
+        const marketingBtn = metricsToggle.querySelector('.metrics-btn:last-child');
+        
+        if (generalBtn) generalBtn.classList.add('active');
+        if (marketingBtn) marketingBtn.classList.remove('active');
+        
+        // Mostrar métricas generales y ocultar marketing
+        const generalMetrics = document.querySelector(`#${tabName} .general-metrics`);
+        const marketingMetrics = document.querySelector(`#${tabName} .marketing-metrics`);
+        
+        if (generalMetrics && marketingMetrics) {
+            generalMetrics.style.display = 'grid';
+            marketingMetrics.style.display = 'none';
+        }
+    }
+    
+    // Destruir todas las gráficas existentes
+    Object.keys(chartInstances).forEach(key => {
+        if (chartInstances[key]) {
+            try {
+                chartInstances[key].destroy();
+            } catch (e) {
+                console.warn('Error destruyendo gráfica:', e);
+            }
+            delete chartInstances[key];
+        }
+    });
+    
+    // Inicializar gráficas del mes seleccionado
+    setTimeout(() => {
+        try {
+            if (tabName === 'general') {
+                initGeneralCharts();
+            } else {
+                initMonthlyCharts(tabName);
+            }
+        } catch (error) {
+            console.error('Error inicializando gráficas para:', tabName, error);
+        }
+    }, 100);
+}
+        // Función para alternar desglose
+        function toggleBreakdown(contentId) {
+            const content = document.getElementById(contentId);
+            const arrow = event.target.closest('.breakdown-header').querySelector('.breakdown-arrow');
+            
+            content.classList.toggle('expanded');
+            arrow.classList.toggle('expanded');
+        }
+
+        // Función para alternar tipos de gráfica
+        function toggleChart(chartId, chartType, element) {
+            // Actualizar botones
+            const container = element.closest('.chart-toggle');
+            container.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            element.classList.add('active');
+
+            // Recrear gráfica
+            const canvasId = chartId.replace('-left', 'LeftChart').replace('-right', 'RightChart');
+            
+            if (chartInstances[canvasId]) {
+                chartInstances[canvasId].destroy();
+            }
+
+            if (chartId.includes('general')) {
+                if (chartId.includes('left')) {
+                    createGeneralExpenseChart(chartType);
+                } else {
+                    createGeneralTrendChart(chartType);
+                }
+            } else {
+                const month = chartId.split('-')[0];
+                if (chartId.includes('left')) {
+                    createMonthlyExpenseChart(month, chartType);
+                }
+            }
+        }
+
+        // Gráficas de vista general
+        function initGeneralCharts() {
+            createGeneralExpenseChart('bar');
+            createGeneralTrendChart('line');
+            createGeneralComparisonChart();
+        }
+
+        function createGeneralExpenseChart(type) {
+            const ctx = document.getElementById('generalLeftChart').getContext('2d');
+            
+            // Calcular totales por categoría
+            const categoryTotals = monthlyData.enero.labels.map((label, index) => {
+                return Object.values(monthlyData).reduce((sum, month) => sum + month.gastos[index], 0);
+            });
+
+            const config = {
+                type: type,
+                data: {
+                    labels: monthlyData.enero.labels,
+                    datasets: [{
+                        label: 'Gastos Totales',
+                        data: categoryTotals,
+                        backgroundColor: type === 'pie' ? colors : colors[0],
+                        borderColor: type === 'pie' ? colors.map(c => c + 'CC') : colors[0],
+                        borderWidth: 3,
+                        borderRadius: type === 'bar' ? 8 : 0,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    ...chart3DConfig,
+                    scales: type === 'bar' ? {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Q ' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    } : {},
+                    plugins: {
+                        ...chart3DConfig.plugins,
+                        legend: {
+                            ...chart3DConfig.plugins.legend,
+                            display: type === 'pie'
+                        }
+                    }
+                }
+            };
+
+ // Plugin mejorado para gráfica circular
+if (type === 'pie') {
+    config.options.plugins.tooltip.callbacks.label = function(context) {
+        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+        const percentage = ((context.parsed / total) * 100).toFixed(1);
+        return context.label + ': Q ' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+    };
+    
+    config.plugins = [{
+        afterDraw: function(chart) {
+            const ctx = chart.ctx;
+            const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            
+chart.data.datasets[0].data.forEach((value, index) => {
+    const meta = chart.getDatasetMeta(0);
+    const arc = meta.data[index];
+    const percentage = ((value / total) * 100).toFixed(1);
+    
+    // Solo mostrar porcentaje si es mayor al 3%
+    if (percentage > 3) {
+        const angle = (arc.startAngle + arc.endAngle) / 2;
+        const radius = arc.outerRadius + 25; // Posicionar fuera del círculo
+        
+        const x = arc.x + Math.cos(angle) * radius;
+        const y = arc.y + Math.sin(angle) * radius;
+        
+        // Fondo semitransparente para mejor legibilidad
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.beginPath();
+        ctx.roundRect(x - 25, y - 12, 50, 24, 12);
+        ctx.fill();
+        
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(percentage + '%', x, y);
+    }
+});
+            
+// Leyenda definitiva centrada debajo del gráfico
+const legendStartY = chart.height - 100; // Más espacio para el círculo arriba
+const centerX = chart.width / 2;
+ctx.font = 'bold 12px Segoe UI';
+
+chart.data.labels.forEach((label, index) => {
+    const value = chart.data.datasets[0].data[index];
+    const percentage = ((value / total) * 100).toFixed(1);
+    const color = chart.data.datasets[0].backgroundColor[index];
+    
+    // Calcular posición para centrar la leyenda
+    const itemsPerRow = 3;
+    const rowIndex = Math.floor(index / itemsPerRow);
+    const colIndex = index % itemsPerRow;
+    const itemWidth = 180;
+    const startX = centerX - (itemsPerRow * itemWidth) / 2;
+    
+    const x = startX + colIndex * itemWidth;
+    const y = legendStartY + rowIndex * 30;
+    
+    // Círculo de color
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Borde blanco para mejor definición
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Texto centrado y ordenado
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${label}: ${percentage}%`, x + 15, y + 4);
+});
+        }
+    }];
+    
+    config.options.plugins.legend.display = false; // Ocultar leyenda por defecto
+}
+            chartInstances['generalLeftChart'] = new Chart(ctx, config);
+        }
+
+        function createGeneralTrendChart(type) {
+            const ctx = document.getElementById('generalRightChart').getContext('2d');
+            
+const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
+            const gastosTotales = Object.values(monthlyData).map(month => 
+                month.gastos.reduce((sum, gasto) => sum + gasto, 0)
+            );
+            const casos = Object.values(monthlyData).map(month => month.casos);
+
+            const config = {
+                type: type === 'area' ? 'line' : 'line',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Gastos Totales (Q)',
+                            data: gastosTotales,
+                            borderColor: colors[0],
+                            backgroundColor: type === 'area' ? colors[0] + '30' : 'transparent',
+                            fill: type === 'area',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: colors[0],
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2
+                        },
+                        {
+                            label: 'Casos',
+                            data: casos,
+                            borderColor: colors[1],
+                            backgroundColor: type === 'area' ? colors[1] + '30' : 'transparent',
+                            fill: type === 'area',
+                            tension: 0.4,
+                            borderWidth: 3,
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            pointBackgroundColor: colors[1],
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 2,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    ...chart3DConfig,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Q ' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' casos';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            };
+
+            chartInstances['generalRightChart'] = new Chart(ctx, config);
+        }
+
+        function createGeneralComparisonChart() {
+            const ctx = document.getElementById('generalTrendChart').getContext('2d');
+            
+const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
+            const colocaciones = Object.values(monthlyData).map(month => month.colocaciones / 1000000);
+            const costosCliente = Object.values(monthlyData).map(month => month.costoCliente);
+
+            const config = {
+                type: 'bar',
+                data: {
+                    labels: months,
+                    datasets: [
+                        {
+                            label: 'Colocaciones (Millones Q)',
+                            data: colocaciones,
+                            backgroundColor: colors[0],
+                            borderColor: colors[0],
+                            borderWidth: 2,
+                            borderRadius: 8,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Costo por Cliente (Q)',
+                            data: costosCliente,
+                            type: 'line',
+                            borderColor: colors[2],
+                            backgroundColor: colors[2],
+                            borderWidth: 4,
+                            tension: 0.4,
+                            pointRadius: 8,
+                            pointHoverRadius: 10,
+                            pointBackgroundColor: colors[2],
+                            pointBorderColor: '#fff',
+                            pointBorderWidth: 3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    ...chart3DConfig,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Q ' + value.toFixed(1) + 'M';
+                                }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Q ' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            };
+
+            chartInstances['generalTrendChart'] = new Chart(ctx, config);
+        }
+
+        // Gráficas mensuales
+        function initMonthlyCharts(month) {
+            createMonthlyExpenseChart(month, 'bar');
+            createMonthlyPerformanceChart(month);
+        }
+
+        function createMonthlyExpenseChart(month, type) {
+            const ctx = document.getElementById(month + 'LeftChart').getContext('2d');
+            const data = monthlyData[month];
+
+            const config = {
+                type: type,
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Gastos del Mes',
+                        data: data.gastos,
+                        backgroundColor: type === 'pie' ? colors : colors[0],
+                        borderColor: type === 'pie' ? colors.map(c => c + 'CC') : colors[0],
+                        borderWidth: 3,
+                        borderRadius: type === 'bar' ? 8 : 0,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    ...chart3DConfig,
+                    scales: type === 'bar' ? {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return 'Q ' + value.toLocaleString();
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    } : {},
+                    plugins: {
+                        ...chart3DConfig.plugins,
+                        legend: {
+                            ...chart3DConfig.plugins.legend,
+                            display: type === 'pie'
+                        }
+                    }
+                }
+            };
+
+// Plugin mejorado para gráfica circular (misma funcionalidad que la general)
+if (type === 'pie') {
+    config.options.plugins.tooltip.callbacks.label = function(context) {
+        const total = context.dataset.data.reduce((a, b) => a + b, 0);
+        const percentage = ((context.parsed / total) * 100).toFixed(1);
+        return context.label + ': Q ' + context.parsed.toLocaleString() + ' (' + percentage + '%)';
+    };
+    
+    config.plugins = [{
+        afterDraw: function(chart) {
+            const ctx = chart.ctx;
+            const total = chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+            
+       chart.data.datasets[0].data.forEach((value, index) => {
+    const meta = chart.getDatasetMeta(0);
+    const arc = meta.data[index];
+    const percentage = ((value / total) * 100).toFixed(1);
+    
+    // Solo mostrar porcentaje si es mayor al 3%
+    if (percentage > 3) {
+        const angle = (arc.startAngle + arc.endAngle) / 2;
+        const radius = arc.outerRadius + 25; // Posicionar fuera del círculo
+        
+        const x = arc.x + Math.cos(angle) * radius;
+        const y = arc.y + Math.sin(angle) * radius;
+        
+        // Fondo semitransparente para mejor legibilidad
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+        ctx.beginPath();
+        ctx.roundRect(x - 25, y - 12, 50, 24, 12);
+        ctx.fill();
+        
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 12px Segoe UI';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(percentage + '%', x, y);
+    }
+});
+            
+// Leyenda definitiva centrada debajo del gráfico
+const legendStartY = chart.height - 100; // Más espacio para el círculo arriba
+const centerX = chart.width / 2;
+ctx.font = 'bold 12px Segoe UI';
+
+chart.data.labels.forEach((label, index) => {
+    const value = chart.data.datasets[0].data[index];
+    const percentage = ((value / total) * 100).toFixed(1);
+    const color = chart.data.datasets[0].backgroundColor[index];
+    
+    // Calcular posición para centrar la leyenda
+    const itemsPerRow = 3;
+    const rowIndex = Math.floor(index / itemsPerRow);
+    const colIndex = index % itemsPerRow;
+    const itemWidth = 180;
+    const startX = centerX - (itemsPerRow * itemWidth) / 2;
+    
+    const x = startX + colIndex * itemWidth;
+    const y = legendStartY + rowIndex * 30;
+    
+    // Círculo de color
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 8, 0, 2 * Math.PI);
+    ctx.fill();
+    
+    // Borde blanco para mejor definición
+    ctx.strokeStyle = '#fff';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    
+    // Texto centrado y ordenado
+    ctx.fillStyle = '#333';
+    ctx.textAlign = 'left';
+    ctx.fillText(`${label}: ${percentage}%`, x + 15, y + 4);
+});
+        }
+    }];
+    
+    config.options.plugins.legend.display = false; // Ocultar leyenda por defecto
+}
+
+            chartInstances[month + 'LeftChart'] = new Chart(ctx, config);
+        }
+
+function createMonthlyPerformanceChart(month) {
+    const ctx = document.getElementById(month + 'RightChart').getContext('2d');
+    const data = monthlyData[month];
+
+    // Obtener datos de todos los meses hasta el mes actual
+const monthOrder = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio'];
+    const currentIndex = monthOrder.indexOf(month);
+    const monthsToShow = monthOrder.slice(0, currentIndex + 1);
+    
+    // Calcular tendencias de costo por cliente y colocaciones
+    const costoPorClienteData = monthsToShow.map(m => monthlyData[m].costoCliente);
+    const colocacionesData = monthsToShow.map(m => monthlyData[m].colocaciones / 1000000); // En millones
+    const casosData = monthsToShow.map(m => monthlyData[m].casos);
+    
+    const config = {
+        type: 'line',
+        data: {
+            labels: monthsToShow.map(m => m.charAt(0).toUpperCase() + m.slice(1)),
+            datasets: [
+                {
+                    label: 'Costo por Cliente (Q)',
+                    data: costoPorClienteData,
+                    borderColor: colors[0],
+                    backgroundColor: colors[0] + '20',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: colors[0],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Colocaciones (Millones Q)',
+                    data: colocacionesData,
+                    borderColor: colors[1],
+                    backgroundColor: colors[1] + '20',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 6,
+                    pointHoverRadius: 8,
+                    pointBackgroundColor: colors[1],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    yAxisID: 'y1'
+                },
+                {
+                    label: 'Casos',
+                    data: casosData,
+                    borderColor: colors[2],
+                    backgroundColor: 'transparent',
+                    borderDash: [5, 5],
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: colors[2],
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2,
+                    yAxisID: 'y2'
+                }
+            ]
+        },
+        options: {
+            ...chart3DConfig,
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    grid: {
+                        color: 'rgba(255, 107, 53, 0.1)'
+                    },
+                    ticks: {
+                        color: colors[0],
+                        callback: function(value) {
+                            return 'Q ' + value.toLocaleString();
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Costo por Cliente',
+                        color: colors[0],
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                    ticks: {
+                        color: colors[1],
+                        callback: function(value) {
+                            return 'Q ' + value.toFixed(1) + 'M';
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Colocaciones',
+                        color: colors[1],
+                        font: {
+                            weight: 'bold'
+                        }
+                    }
+                },
+                y2: {
+                    type: 'linear',
+                    display: false,
+                    min: 0,
+                    max: 50
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.05)'
+                    }
+                }
+            },
+            plugins: {
+                ...chart3DConfig.plugins,
+                legend: {
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        usePointStyle: true,
+                        padding: 15,
+                        font: {
+                            size: 11,
+                            weight: 'bold'
+                        }
+                    }
+                },
+                tooltip: {
+                    ...chart3DConfig.plugins.tooltip,
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label + ': ';
+                            if (context.datasetIndex === 0) {
+                                label += 'Q ' + context.parsed.y.toLocaleString();
+                            } else if (context.datasetIndex === 1) {
+                                label += 'Q ' + context.parsed.y.toFixed(2) + 'M';
+                            } else {
+                                label += context.parsed.y + ' casos';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    chartInstances[month + 'RightChart'] = new Chart(ctx, config);
+}
+
+        // Inicializar dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Asegurar que la pestaña "Vista General" esté activa
+                const generalTab = document.getElementById('general');
+                if (generalTab) {
+                    generalTab.classList.add('active');
+                }
+                
+                // Asegurar que el botón "Vista General" esté activo
+                const generalTabBtn = document.querySelector('.nav-tab.active');
+                if (!generalTabBtn) {
+                    const firstTabBtn = document.querySelector('.nav-tab');
+                    if (firstTabBtn) {
+                        firstTabBtn.classList.add('active');
+                    }
+                }
+                
+                // Inicializar las gráficas de la vista general
+                setTimeout(() => {
+                    initGeneralCharts();
+                }, 100);
+                
+            } catch (error) {
+                console.error('Error inicializando dashboard:', error);
+            }
+        });
+
+        // También agregar un evento de carga de ventana como respaldo
+        window.addEventListener('load', function() {
+            // Verificar si las gráficas ya están inicializadas
+            if (Object.keys(chartInstances).length === 0) {
+                setTimeout(() => {
+                    try {
+                        initGeneralCharts();
+                    } catch (error) {
+                        console.error('Error en carga de ventana:', error);
+                    }
+                }, 200);
+            }
+        });
+
+        
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'fadeIn 0.6s ease-out forwards';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.metric-card, .chart-panel').forEach(el => {
+            observer.observe(el);
+        });
+function showMetrics(type, element) {
+    // Obtener el mes actual
+    const currentTab = document.querySelector('.tab-panel.active').id;
+    
+    // Actualizar botones
+    const container = element.closest('.metrics-toggle');
+    container.querySelectorAll('.metrics-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    element.classList.add('active');
+    
+    // Mostrar/ocultar métricas
+    const generalMetrics = document.querySelector(`#${currentTab} .general-metrics`);
+    const marketingMetrics = document.querySelector(`#${currentTab} .marketing-metrics`);
+    
+    if (generalMetrics && marketingMetrics) {
+        if (type === 'general') {
+            generalMetrics.style.display = 'grid';
+            marketingMetrics.style.display = 'none';
+        } else {
+            generalMetrics.style.display = 'none';
+            marketingMetrics.style.display = 'grid';
+            updateMarketingMetrics(currentTab);
+        }
+    }
+}
+
+// Función para actualizar métricas de marketing
+function updateMarketingMetrics(month) {
+    if (month === 'general') {
+        // Calcular total de gastos de marketing (publicidad + plataformas + contenido)
+        const totalMarketingGastos = Object.values(monthlyData).reduce((sum, m) => sum + m.gastos[0] + m.gastos[1] + m.gastos[2], 0);
+        const totalCasos = Object.values(monthlyData).reduce((sum, m) => sum + m.casos, 0);
+        const totalColocaciones = Object.values(monthlyData).reduce((sum, m) => sum + m.colocaciones, 0);
+        const costoPromedioMarketing = totalMarketingGastos / totalCasos;
+        
+        document.getElementById('general-ratio').textContent = 'Q ' + Math.round(totalMarketingGastos).toLocaleString('es-GT');
+        document.getElementById('general-publicidad').textContent = totalCasos.toLocaleString('es-GT');
+        document.getElementById('general-plataformas').textContent = 'Q ' + totalColocaciones.toLocaleString('es-GT');
+        document.getElementById('general-contenido').textContent = 'Q ' + Math.round(costoPromedioMarketing).toLocaleString('es-GT');
+    } else {
+        const data = monthlyData[month];
+        // Total gastos marketing = publicidad + contenido + plataformas (índices 0, 1, 2)
+        const totalMarketingGastos = data.gastos[0] + data.gastos[1] + data.gastos[2];
+        const costoClienteMarketing = totalMarketingGastos / data.casos;
+        
+        document.getElementById(month + '-ratio').textContent = 'Q ' + Math.round(totalMarketingGastos).toLocaleString('es-GT');
+        document.getElementById(month + '-publicidad').textContent = data.casos.toLocaleString('es-GT');
+        document.getElementById(month + '-plataformas').textContent = 'Q ' + data.colocaciones.toLocaleString('es-GT');
+        document.getElementById(month + '-contenido').textContent = 'Q ' + Math.round(costoClienteMarketing).toLocaleString('es-GT');
+    }
+}
+    </script>
+</body>
+
+
+</html>
