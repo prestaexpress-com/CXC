@@ -1,6 +1,8 @@
 
 
 
+
+
 <!-- Creador: Cristhian Aguilar
      Departamento de IT 
   -->
@@ -20,27 +22,48 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8f00 25%, #ffb366 50%, #ffd1a3 75%, #fff8f0 100%);
+            background-attachment: fixed;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(255, 107, 53, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(255, 179, 102, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+            z-index: -1;
         }
 
         .dashboard-container {
             max-width: 1400px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            overflow: visible;
         }
 
         .header {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.95), rgba(247, 147, 30, 0.95));
+            backdrop-filter: blur(15px);
             color: white;
             padding: 30px;
             text-align: center;
             position: relative;
             overflow: hidden;
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.2);
         }
 
         .header::before {
@@ -75,7 +98,7 @@
         }
 
         .nav-tabs {
-            background: #f8f9fa;
+            background: transparent;
             padding: 20px;
             margin: 0;
             display: flex;
@@ -85,8 +108,12 @@
         }
 
         .nav-tab {
-            background: white;
+            background: linear-gradient(145deg, #ffffff, rgba(248, 250, 252, 0.98));
+            backdrop-filter: blur(15px);
             border: 2px solid #ff6b35;
+            box-shadow: 
+                0 4px 15px rgba(255, 107, 53, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
             color: #ff6b35;
             padding: 12px 25px;
             cursor: pointer;
@@ -96,24 +123,44 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            min-width: 120px;
-            text-align: center;
+            margin: 5px;
+        }
+
+        .nav-tab::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 23px;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 0, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-tab:hover::after {
+            opacity: 1;
         }
 
         .nav-tab:hover {
-            background: #ff6b35;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255,107,53,0.3);
+            background: linear-gradient(145deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 0, 0.1));
+            border: 2px solid #ff8f00;
+            transform: translateY(-3px);
+            box-shadow: 
+                0 12px 25px rgba(255, 107, 53, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            color: #ff4500;
         }
 
         .nav-tab.active {
-            background: #ff6b35;
+            background: linear-gradient(135deg, #ff6b35, #ff8f00);
+            border: 2px solid #ff4500;
             color: white;
-            box-shadow: 0 5px 15px rgba(255,107,53,0.4);
-            transform: translateY(-1px);
+            box-shadow: 
+                0 8px 20px rgba(255, 107, 53, 0.4),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
         }
 
         .nav-tab::before {
@@ -158,13 +205,18 @@
         }
 
         .metric-card {
-            background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.95), rgba(247, 147, 30, 0.95));
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: white;
             padding: 30px;
-            border-radius: 15px;
+            border-radius: 20px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(255,107,53,0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 
+                0 12px 40px rgba(255, 107, 53, 0.25),
+                0 4px 16px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
             overflow: hidden;
         }
@@ -176,13 +228,44 @@
             right: -50%;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
             border-radius: 50%;
+            animation: shimmerSoft 4s ease-in-out infinite;
+        }
+
+        @keyframes shimmerSoft {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .metric-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .metric-card:hover::after {
+            left: 100%;
         }
 
         .metric-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(255,107,53,0.4);
+            transform: translateY(-10px) scale(1.02);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 1), rgba(247, 147, 30, 1));
+            box-shadow: 
+                0 20px 60px rgba(255, 107, 53, 0.35),
+                0 8px 24px rgba(0, 0, 0, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .metric-icon {
@@ -213,24 +296,23 @@
         }
 
         .metrics-btn {
-            background: white;
-            border: 2px solid #ff6b35;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.8));
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 107, 53, 0.3);
             color: #ff6b35;
             padding: 12px 25px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 600;
             border-radius: 25px;
             transition: all 0.3s ease;
-            min-width: 180px;
-            text-align: center;
+            font-weight: 600;
         }
 
         .metrics-btn:hover {
-            background: #ff6b35;
-            color: white;
+            background: linear-gradient(145deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 0, 0.1));
+            border: 2px solid rgba(255, 107, 53, 0.6);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255,107,53,0.3);
+            box-shadow: 0 8px 20px rgba(255, 107, 53, 0.2);
         }
 
         .metrics-btn.active {
@@ -247,12 +329,43 @@
         }
 
         .chart-panel {
-            background: white;
-            border-radius: 15px;
-            padding: 25px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-            border: 2px solid #f0f0f0;
-            transition: all 0.3s ease;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.95));
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 107, 53, 0.15);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 
+                0 8px 32px rgba(255, 107, 53, 0.1),
+                0 2px 16px rgba(0, 0, 0, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .chart-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.05), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .chart-panel:hover::before {
+            left: 100%;
+        }
+
+        .chart-panel:hover {
+            transform: translateY(-8px);
+            box-shadow: 
+                0 16px 48px rgba(255, 107, 53, 0.15),
+                0 4px 24px rgba(0, 0, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 1);
+            border: 1px solid rgba(255, 107, 53, 0.2);
         }
 
         .chart-panel:hover {
@@ -273,6 +386,23 @@
             font-size: 1.4em;
             font-weight: 700;
             color: #333;
+            background: linear-gradient(135deg, #ff6b35, #ff8f00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .chart-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, #ff6b35, #ff8f00);
+            border-radius: 2px;
         }
 
         .chart-toggle {
@@ -349,7 +479,8 @@
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.3s ease;
-            background: white;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         .breakdown-content.expanded {
