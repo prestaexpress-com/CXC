@@ -2,6 +2,7 @@
 
 
 
+
 <!-- Creador: Cristhian Aguilar
      Departamento de IT 
   -->
@@ -1399,22 +1400,22 @@
                     <div class="metrics-grid general-metrics active">
                         <div class="metric-card">
                             <div class="metric-icon">💰</div>
-                            <div class="metric-value">Q 0</div>
+                            <div class="metric-value" id="julio-gastos-totales">Q 0</div>
                             <div class="metric-label">Gastos Totales</div>
                         </div>
                         <div class="metric-card">
                             <div class="metric-icon">📊</div>
-                            <div class="metric-value">0</div>
+                            <div class="metric-value" id="julio-casos">0</div>
                             <div class="metric-label">Casos</div>
                         </div>
                         <div class="metric-card">
                             <div class="metric-icon">🎯</div>
-                            <div class="metric-value">Q 0</div>
+                            <div class="metric-value" id="julio-colocaciones">Q 0</div>
                             <div class="metric-label">Colocaciones</div>
                         </div>
                         <div class="metric-card">
                             <div class="metric-icon">👥</div>
-                            <div class="metric-value">Q 0</div>
+                            <div class="metric-value" id="julio-costo-cliente">Q 0</div>
                             <div class="metric-label">Costo por Cliente</div>
                         </div>
                     </div>
@@ -1477,31 +1478,31 @@
                         <div class="breakdown-list">
                             <div class="breakdown-item">
                                 <span class="breakdown-category">Publicidad (Facebook Ads, Google Ads, etc.)</span>
-                                <span class="breakdown-amount">Q 0</span>
+                                <span class="breakdown-amount">Q 143,393</span>
                             </div>
                             <div class="breakdown-item">
                                 <span class="breakdown-category">Sueldos</span>
-                                <span class="breakdown-amount">Q 0</span>
+                                <span class="breakdown-amount">Q 102,101</span>
                             </div>
                             <div class="breakdown-item">
                                 <span class="breakdown-category">Comisiones</span>
-                                <span class="breakdown-amount">Q 0</span>
+                                <span class="breakdown-amount">Q 138,748</span>
                             </div>
                             <div class="breakdown-item">
                                 <span class="breakdown-category">Honorarios</span>
-                                <span class="breakdown-amount">Q 0</span>
+                                <span class="breakdown-amount">Q 37,635</span>
                             </div>
                             <div class="breakdown-item">
                                 <span class="breakdown-category">Creación de contenido</span>
-                                <span class="breakdown-amount">Q 0</span>
+                                <span class="breakdown-amount">Q 42,462</span>
                             </div>
                             <div class="breakdown-item">
                                 <span class="breakdown-category">Plataformas y herramientas de marketing</span>
-                                <span class="breakdown-amount">Q 0</span>
+                                <span class="breakdown-amount">Q 10,408</span>
                             </div>
                             <div class="breakdown-item">
                                 <span class="breakdown-category">Otros costos de marketing</span>
-                                <span class="breakdown-amount">Q 0</span>
+                                <span class="breakdown-amount">Q 59,082</span>
                             </div>
                         </div>
                     </div>
@@ -1556,11 +1557,11 @@ marzo: {
         costoCliente: 20157.0
     },
     julio: {
-        gastos: [0, 0, 0, 0, 0, 0, 0],
+        gastos: [143393.24, 42461.78, 10408.00, 59082.00, 102100.86, 37634.59, 138748.16],
         labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
-        casos: 0,
-        colocaciones: 0,
-        costoCliente: 0
+        casos: 32,
+        colocaciones: 4932000,
+        costoCliente: 16682.14
     }
 };
 
@@ -1693,8 +1694,10 @@ function showTab(tabName, element) {
         try {
             if (tabName === 'general') {
                 initGeneralCharts();
+                updateGeneralMetrics('general');
             } else {
                 initMonthlyCharts(tabName);
+                updateGeneralMetrics(tabName);
             }
         } catch (error) {
             console.error('Error inicializando gráficas para:', tabName, error);
@@ -1748,6 +1751,11 @@ function showTab(tabName, element) {
         }
 
         function createGeneralExpenseChart(type) {
+            // Destruir gráfico existente si existe
+            if (chartInstances['generalLeftChart']) {
+                chartInstances['generalLeftChart'].destroy();
+            }
+            
             const ctx = document.getElementById('generalLeftChart').getContext('2d');
             
             // Calcular totales por categoría
@@ -1884,6 +1892,11 @@ chart.data.labels.forEach((label, index) => {
         }
 
         function createGeneralTrendChart(type) {
+            // Destruir gráfico existente si existe
+            if (chartInstances['generalRightChart']) {
+                chartInstances['generalRightChart'].destroy();
+            }
+            
             const ctx = document.getElementById('generalRightChart').getContext('2d');
             
 const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
@@ -1970,6 +1983,11 @@ const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
         }
 
         function createGeneralComparisonChart() {
+            // Destruir gráfico existente si existe
+            if (chartInstances['generalTrendChart']) {
+                chartInstances['generalTrendChart'].destroy();
+            }
+            
             const ctx = document.getElementById('generalTrendChart').getContext('2d');
             
 const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
@@ -2055,6 +2073,12 @@ const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
         }
 
         function createMonthlyExpenseChart(month, type) {
+            // Destruir gráfico existente si existe
+            const chartKey = month + 'LeftChart';
+            if (chartInstances[chartKey]) {
+                chartInstances[chartKey].destroy();
+            }
+            
             const ctx = document.getElementById(month + 'LeftChart').getContext('2d');
             const data = monthlyData[month];
 
@@ -2188,6 +2212,12 @@ chart.data.labels.forEach((label, index) => {
         }
 
 function createMonthlyPerformanceChart(month) {
+    // Destruir gráfico existente si existe
+    const chartKey = month + 'RightChart';
+    if (chartInstances[chartKey]) {
+        chartInstances[chartKey].destroy();
+    }
+    
     const ctx = document.getElementById(month + 'RightChart').getContext('2d');
     const data = monthlyData[month];
 
@@ -2432,6 +2462,30 @@ function showMetrics(type, element) {
             marketingMetrics.style.display = 'grid';
             updateMarketingMetrics(currentTab);
         }
+    }
+}
+
+// Función para actualizar métricas generales
+function updateGeneralMetrics(month) {
+    if (month === 'general') {
+        // Calcular totales generales
+        const totalGastos = Object.values(monthlyData).reduce((sum, m) => sum + m.gastos.reduce((a, b) => a + b, 0), 0);
+        const totalCasos = Object.values(monthlyData).reduce((sum, m) => sum + m.casos, 0);
+        const totalColocaciones = Object.values(monthlyData).reduce((sum, m) => sum + m.colocaciones, 0);
+        const costoPromedio = totalCasos > 0 ? totalGastos / totalCasos : 0;
+        
+        document.getElementById('general-gastos-totales').textContent = 'Q ' + totalGastos.toLocaleString('es-GT');
+        document.getElementById('general-casos').textContent = totalCasos.toLocaleString('es-GT');
+        document.getElementById('general-colocaciones').textContent = 'Q ' + totalColocaciones.toLocaleString('es-GT');
+        document.getElementById('general-costo-cliente').textContent = 'Q ' + Math.round(costoPromedio).toLocaleString('es-GT');
+    } else {
+        const data = monthlyData[month];
+        const totalGastos = data.gastos.reduce((sum, gasto) => sum + gasto, 0);
+        
+        document.getElementById(month + '-gastos-totales').textContent = 'Q ' + totalGastos.toLocaleString('es-GT');
+        document.getElementById(month + '-casos').textContent = data.casos.toLocaleString('es-GT');
+        document.getElementById(month + '-colocaciones').textContent = 'Q ' + data.colocaciones.toLocaleString('es-GT');
+        document.getElementById(month + '-costo-cliente').textContent = 'Q ' + Math.round(data.costoCliente).toLocaleString('es-GT');
     }
 }
 
