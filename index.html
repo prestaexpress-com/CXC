@@ -574,6 +574,7 @@
             <button class="nav-tab" onclick="showTab('mayo', this)">Mayo</button>
             <button class="nav-tab" onclick="showTab('junio', this)">Junio</button>
             <button class="nav-tab" onclick="showTab('julio', this)">Julio</button>
+            <button class="nav-tab" onclick="showTab('agosto', this)">Agosto</button>
 
         </div>
 
@@ -589,22 +590,22 @@
         <div class="metrics-grid general-metrics active">
             <div class="metric-card">
                 <div class="metric-icon">💰</div>
-                <div class="metric-value">Q 3,014,120</div>
+                <div class="metric-value" id="general-gastos-totales">Q 3,417,260</div>
                 <div class="metric-label">Gastos Totales</div>
             </div>
             <div class="metric-card">
                 <div class="metric-icon">📊</div>
-                <div class="metric-value">207</div>
+                <div class="metric-value" id="general-casos">223</div>
                 <div class="metric-label">Total Casos</div>
             </div>
             <div class="metric-card">
                 <div class="metric-icon">🎯</div>
-                <div class="metric-value">Q 33,177,000</div>
+                <div class="metric-value" id="general-colocaciones">Q 34,532,000</div>
                 <div class="metric-label">Colocaciones</div>
             </div>
             <div class="metric-card">
                 <div class="metric-icon">👥</div>
-                <div class="metric-value">Q 14,563</div>
+                <div class="metric-value" id="general-costo-cliente">Q 15,324</div>
                 <div class="metric-label">Costo por Cliente</div>
             </div>
         </div>
@@ -1508,6 +1509,127 @@
                     </div>
                 </div>
             </div>
+            
+            <!-- Agosto -->
+            <div id="agosto" class="tab-panel">
+                <div class="metrics-toggle">
+                    <button class="metrics-btn active" onclick="showMetrics('general', this)">📊 Gastos General</button>
+                    <button class="metrics-btn" onclick="showMetrics('marketing', this)">📈 Gastos Marketing</button>
+                </div>
+                
+                <div class="metrics-container">
+                    <!-- Métricas Generales -->
+                    <div class="metrics-grid general-metrics active">
+                        <div class="metric-card">
+                            <div class="metric-icon">💰</div>
+                            <div class="metric-value" id="agosto-gastos-totales">Q 0</div>
+                            <div class="metric-label">Gastos Totales</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📊</div>
+                            <div class="metric-value" id="agosto-casos">0</div>
+                            <div class="metric-label">Casos</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🎯</div>
+                            <div class="metric-value" id="agosto-colocaciones">Q 0</div>
+                            <div class="metric-label">Colocaciones</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">👥</div>
+                            <div class="metric-value" id="agosto-costo-cliente">Q 0</div>
+                            <div class="metric-label">Costo por Cliente</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Métricas de Marketing -->
+                    <div class="metrics-grid marketing-metrics" style="display: none;">
+                        <div class="metric-card">
+                            <div class="metric-icon">💰</div>
+                            <div class="metric-value" id="agosto-ratio">Q 0</div>
+                            <div class="metric-label">Total Gastos Marketing</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📊</div>
+                            <div class="metric-value" id="agosto-publicidad">Q 0</div>
+                            <div class="metric-label">Casos</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🎯</div>
+                            <div class="metric-value" id="agosto-plataformas">Q 0</div>
+                            <div class="metric-label">Colocaciones</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">💥</div>
+                            <div class="metric-value" id="agosto-contenido">Q 0</div>
+                            <div class="metric-label">Costo por Cliente</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-container">
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Distribución de Gastos</h3>
+                            <div class="chart-toggle">
+                                <button class="toggle-btn active" onclick="toggleChart('agosto-left', 'bar', this)">📊 Barras</button>
+                                <button class="toggle-btn" onclick="toggleChart('agosto-left', 'pie', this)">🥧 Circular</button>
+                            </div>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="agostoLeftChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-panel">
+                        <div class="chart-header">
+                            <h3 class="chart-title">Métricas de Rendimiento</h3>
+                        </div>
+                        <div class="chart-canvas">
+                            <canvas id="agostoRightChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="expenses-breakdown">
+                    <div class="breakdown-header" onclick="toggleBreakdown('agosto-breakdown')">
+                        <h3 class="breakdown-title">💼 Desglose de Gastos - Agosto</h3>
+                        <span class="breakdown-arrow">⬇️</span>
+                    </div>
+                    <div id="agosto-breakdown" class="breakdown-content">
+                        <div class="breakdown-list">
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Publicidad (Facebook Ads, Google Ads, etc.)</span>
+                                <span class="breakdown-amount">Q 174,477</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Sueldos</span>
+                                <span class="breakdown-amount">Q 116,595</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Comisiones</span>
+                                <span class="breakdown-amount">Q 37,701</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Honorarios</span>
+                                <span class="breakdown-amount">Q 37,635</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Creación de contenido</span>
+                                <span class="breakdown-amount">Q 25,049</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Plataformas y herramientas de marketing</span>
+                                <span class="breakdown-amount">Q 8,432</span>
+                            </div>
+                            <div class="breakdown-item">
+                                <span class="breakdown-category">Otros costos de marketing</span>
+                                <span class="breakdown-amount">Q 3,251</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1562,6 +1684,13 @@ marzo: {
         casos: 32,
         colocaciones: 4932000,
         costoCliente: 16682.14
+    },
+    agosto: {
+        gastos: [174476.57, 25049.25, 8431.60, 3251.47, 116595.39, 37634.60, 37701.00],
+        labels: ['Publicidad', 'Contenido', 'Plataformas', 'Otros Marketing', 'Sueldos', 'Honorarios', 'Comisiones'],
+        casos: 16,
+        colocaciones: 1355000,
+        costoCliente: 25196.24
     }
 };
 
@@ -1899,7 +2028,7 @@ chart.data.labels.forEach((label, index) => {
             
             const ctx = document.getElementById('generalRightChart').getContext('2d');
             
-const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
+const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto'];
             const gastosTotales = Object.values(monthlyData).map(month => 
                 month.gastos.reduce((sum, gasto) => sum + gasto, 0)
             );
@@ -1990,7 +2119,7 @@ const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
             
             const ctx = document.getElementById('generalTrendChart').getContext('2d');
             
-const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio'];
+const months = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto'];
             const colocaciones = Object.values(monthlyData).map(month => month.colocaciones / 1000000);
             const costosCliente = Object.values(monthlyData).map(month => month.costoCliente);
 
@@ -2222,7 +2351,7 @@ function createMonthlyPerformanceChart(month) {
     const data = monthlyData[month];
 
     // Obtener datos de todos los meses hasta el mes actual
-const monthOrder = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio'];
+const monthOrder = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto'];
     const currentIndex = monthOrder.indexOf(month);
     const monthsToShow = monthOrder.slice(0, currentIndex + 1);
     
