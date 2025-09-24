@@ -1552,17 +1552,17 @@
                         <div class="metric-card">
                             <div class="metric-icon">📊</div>
                             <div class="metric-value" id="agosto-publicidad">Q 0</div>
-                            <div class="metric-label">Casos</div>
+                            <div class="metric-label">Publicidad</div>
                         </div>
                         <div class="metric-card">
                             <div class="metric-icon">🎯</div>
                             <div class="metric-value" id="agosto-plataformas">Q 0</div>
-                            <div class="metric-label">Colocaciones</div>
+                            <div class="metric-label">Plataformas y Herramientas</div>
                         </div>
                         <div class="metric-card">
                             <div class="metric-icon">💥</div>
-                            <div class="metric-value" id="agosto-contenido">Q 0</div>
-                            <div class="metric-label">Costo por Cliente</div>
+                            <div class="metric-value" id="agosto-otros-marketing">Q 0</div>
+                            <div class="metric-label">Otros Costos Marketing</div>
                         </div>
                     </div>
                 </div>
@@ -2621,8 +2621,8 @@ function updateGeneralMetrics(month) {
 // Función para actualizar métricas de marketing
 function updateMarketingMetrics(month) {
     if (month === 'general') {
-        // Calcular total de gastos de marketing (publicidad + plataformas + contenido)
-        const totalMarketingGastos = Object.values(monthlyData).reduce((sum, m) => sum + m.gastos[0] + m.gastos[1] + m.gastos[2], 0);
+        // Calcular total de gastos de marketing (publicidad + plataformas + otros marketing)
+        const totalMarketingGastos = Object.values(monthlyData).reduce((sum, m) => sum + m.gastos[0] + m.gastos[2] + m.gastos[3], 0);
         const totalCasos = Object.values(monthlyData).reduce((sum, m) => sum + m.casos, 0);
         const totalColocaciones = Object.values(monthlyData).reduce((sum, m) => sum + m.colocaciones, 0);
         const costoPromedioMarketing = totalMarketingGastos / totalCasos;
@@ -2633,14 +2633,23 @@ function updateMarketingMetrics(month) {
         document.getElementById('general-contenido').textContent = 'Q ' + Math.round(costoPromedioMarketing).toLocaleString('es-GT');
     } else {
         const data = monthlyData[month];
-        // Total gastos marketing = publicidad + contenido + plataformas (índices 0, 1, 2)
-        const totalMarketingGastos = data.gastos[0] + data.gastos[1] + data.gastos[2];
-        const costoClienteMarketing = totalMarketingGastos / data.casos;
+        // Total gastos marketing = publicidad + plataformas + otros marketing (índices 0, 2, 3)
+        const totalMarketingGastos = data.gastos[0] + data.gastos[2] + data.gastos[3];
         
         document.getElementById(month + '-ratio').textContent = 'Q ' + Math.round(totalMarketingGastos).toLocaleString('es-GT');
-        document.getElementById(month + '-publicidad').textContent = data.casos.toLocaleString('es-GT');
-        document.getElementById(month + '-plataformas').textContent = 'Q ' + data.colocaciones.toLocaleString('es-GT');
-        document.getElementById(month + '-contenido').textContent = 'Q ' + Math.round(costoClienteMarketing).toLocaleString('es-GT');
+        document.getElementById(month + '-publicidad').textContent = 'Q ' + Math.round(data.gastos[0]).toLocaleString('es-GT');
+        document.getElementById(month + '-plataformas').textContent = 'Q ' + Math.round(data.gastos[2]).toLocaleString('es-GT');
+        
+        // Para agosto, usar el nuevo ID
+        if (month === 'agosto') {
+            document.getElementById(month + '-otros-marketing').textContent = 'Q ' + Math.round(data.gastos[3]).toLocaleString('es-GT');
+        } else {
+            // Para otros meses, mantener el ID original si existe
+            const contenidoElement = document.getElementById(month + '-contenido');
+            if (contenidoElement) {
+                contenidoElement.textContent = 'Q ' + Math.round(data.gastos[3]).toLocaleString('es-GT');
+            }
+        }
     }
 }
     </script>
